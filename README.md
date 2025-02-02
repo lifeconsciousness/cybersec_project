@@ -20,3 +20,7 @@ With username: `admin' --` and anything in password, attacker can enter anyone's
 
 Same for password: `' OR '1'='1' -- ` and any username.
 
+
+#### Credits
+
+Login page is based on [this form](https://codepen.io/marko-zub/pen/mzPeOV)
