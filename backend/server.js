@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const rateLimit = require("express-rate-limit");
+const session = require("express-session");
 
 const app = express();
 const db = new sqlite3.Database("users.db");
@@ -12,6 +13,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json()); // Support JSON body parsing
 app.use(cors());
 app.use(express.static(__dirname + "/public"));
+
+// Setup session middleware
+app.use(session({
+    secret: "your-secret-key", // Change this to a strong secret
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
 
 // Store failed attempts per IP
 const failedAttempts = {};
@@ -43,6 +52,14 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
     username TEXT UNIQUE, 
     password TEXT
 )`);
+
+// Middleware to protect routes
+const requireLogin = (req, res, next) => {
+    if (!req.session.user) {
+        return res.status(401).send("Unauthorized. Please log in first.");
+    }
+    next();
+};
 
 // Registration endpoint (secure version)
 app.post("/register", async (req, res) => {
@@ -89,7 +106,9 @@ app.post("/login", loginLimiter, (req, res) => {
 
         if (match) {
             failedAttempts[ip] = { count: 0, lastAttempt: Date.now() }; // Reset attempts on success
-            res.send("Login successful!");
+            req.session.user = user.username; // Store user in session
+            res.redirect("/landing.html");
+            // res.send("Login successful!");   
         } else {
             recordFailedAttempt(ip);
             res.send("Invalid credentials.");
@@ -105,6 +124,27 @@ function recordFailedAttempt(ip) {
     failedAttempts[ip].count += 1;
     failedAttempts[ip].lastAttempt = Date.now();
 }
+
+// Logout endpoint
+app.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/"); // Redirect to home page
+    });
+});
+
+app.get("/session-check", (req, res) => {
+    if (req.session.user) {
+        res.send({ loggedIn: true });
+    } else {
+        res.status(401).send({ loggedIn: false });
+    }
+});
+
+
+// Protect landing page
+app.get("/landing.html", requireLogin, (req, res) => {
+    res.sendFile(__dirname + "/public/landing.html");
+});
 
 app.listen(3000, () => {
     console.log("Server running on http://localhost:3000");
