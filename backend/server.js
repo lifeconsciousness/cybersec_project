@@ -48,6 +48,15 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 app.post("/register", async (req, res) => {
     const { username, password } = req.body;
 
+    // check if username is already taken
+    const userExistsQuery = `SELECT * FROM users WHERE username = ?`;
+
+    db.get(userExistsQuery, [username], async (err, user) => {
+        if (user) {
+            return res.send("This username is already taken");
+        }
+    });
+
     // Hash the password before storing it
     const hashedPassword = await bcrypt.hash(password, 10);
 
