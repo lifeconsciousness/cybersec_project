@@ -41,11 +41,27 @@ app.post("/login", (req, res) => {
 
     db.get(query, (err, row) => {
         if (row) {
-            res.send("Login successful!");
+            // res.send("Login successful!");
+            res.redirect("/landing.html");
         } else {
             res.send("Invalid credentials.");
         }
     });
+});
+
+// Logout endpoint
+app.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/"); // Redirect to home page
+    });
+});
+
+app.get("/session-check", (req, res) => {
+    if (req.session.user) {
+        res.send({ loggedIn: true });
+    } else {
+        res.status(401).send({ loggedIn: false });
+    }
 });
 
 app.listen(3000, () => {
