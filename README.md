@@ -2,7 +2,7 @@
 
 ## How to use
 
-In order to register fill in username and password fields. You can use these credentials to login later.
+In order to register, fill in username and password fields. You can use these credentials to login later.
 
 ## How to run
 
