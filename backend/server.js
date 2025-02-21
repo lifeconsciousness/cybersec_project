@@ -2,6 +2,8 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const session = require("express-session");
+
 
 const app = express();
 const db = new sqlite3.Database("users.db");
@@ -15,6 +17,12 @@ app.use(express.static(__dirname + "/public"));
 // app.use(cors());
 
 
+app.use(session({
+    secret: "your_secret_key",  // Change this to a secure random string
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }  // Set to true if using HTTPS
+}));
 
 // registration endpoint 
 app.post("/register", (req, res) => {
@@ -49,11 +57,17 @@ app.post("/login", (req, res) => {
     });
 });
 
-// Logout endpoint
 app.get("/logout", (req, res) => {
-    req.session.destroy(() => {
-        res.redirect("/"); // Redirect to home page
-    });
+    if (req.session) {
+        req.session.destroy(err => {
+            if (err) {
+                return res.status(500).send("Failed to log out.");
+            }
+            res.redirect("/");
+        });
+    } else {
+        res.redirect("/");
+    }
 });
 
 app.get("/session-check", (req, res) => {
