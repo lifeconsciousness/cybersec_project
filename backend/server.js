@@ -20,8 +20,11 @@ db.run(`CREATE TABLE IF NOT EXISTS bookings (
     name TEXT,
     date TEXT,
     time TEXT,
-    people INTEGER
+    people INTEGER,
+    table_number INTEGER UNIQUE
 )`);
+
+app.use(express.static(__dirname + "/public"));
 
 // 🔹 **Booking Endpoint - Create a New Booking**
 app.post("/api/book", (req, res) => {
@@ -30,8 +33,37 @@ app.post("/api/book", (req, res) => {
     if (!name || !date || !time || !people) {
         return res.status(400).json({ error: "All fields are required" });
     }
+    const tableNumbers = [];
+    const maxTables = 50;
 
-    const query = `INSERT INTO bookings (name, date, time, people) VALUES (?, ?, ?, ?)`;
+    db.all("SELECT table_number FROM bookings WHERE date = ? AND time = ?", [date, time], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error"});
+        }
+
+        const bookedTables = rows.map(row => row.table_number);
+        for (let i = 1; i <= maxTables; i++) {
+            if (!bookedTables.includes(i) && tableNumbers.length < tables) {
+                tableNumbers.push(i);
+            }
+        }
+
+        if (tableNumbers.length < tables) {
+            return res.status(400).json({error : "Not enough tables available"});
+        }
+        const insertQuery = `INSERT INTO bookings (name, date, time, people) VALUES (?, ?, ?, ?)`;
+        const insterBookings = tableNumbers.map(table => new Promise((resolve, reject) => {
+            db.run(insertQuery, [name, date, time, people], function (err) {
+                if (err) reject (err);
+                resolve(this.lastID);
+            });
+        }));
+        Promise.all(insertBookings)
+            .then(ids => res.status(201).json({message : "Booking succesful!"}))
+            .catch(() => res.status(500).json({ error: "Database error" }));
+});
+
+    const query = 
     db.run(query, [name, date, time, people], function (err) {
         if (err) {
             return res.status(500).json({ error: "Database error" });
@@ -90,6 +122,27 @@ app.get("/session-check", (req, res) => {
         res.status(401).send({ loggedIn: false });
     }
 });
+
+app.get("/api/available-tables", (req, res) => {
+    const { date, time } = req.query;
+
+    db.all("SELECT table_number FROM bookings WHERE date = ? AND time = ?", [date, time], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        const bookedTables = rows.map(row => row.table_number);
+        const availableTables = [];
+        for (let i = 1; i <= 50; i++) {
+            if (!bookedTables.includes(i)) {
+                availableTables.push(i);
+            }
+        }
+
+        res.json({ availableTables });
+    });
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
