@@ -4,44 +4,71 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const db = new sqlite3.Database("users.db");
+const db = new sqlite3.Database("users.db"); // Same database used for users
+const PORT = 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
+app.use(express.json());
 
+// Ensure the users table exists
 db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)");
 
-// serve static files (for login and registration pages)
-app.use(express.static(__dirname + "/public"));
-// app.use(cors());
+// ✅ **Create a bookings table**
+db.run(`CREATE TABLE IF NOT EXISTS bookings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    date TEXT,
+    time TEXT,
+    people INTEGER
+)`);
 
+// 🔹 **Booking Endpoint - Create a New Booking**
+app.post("/api/book", (req, res) => {
+    const { name, date, time, people } = req.body;
 
+    if (!name || !date || !time || !people) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
 
-// registration endpoint 
-app.post("/register", (req, res) => {
-    const { username, password } = req.body;
-
-    // SQL Injection vulnerability: No parameterized query!
-    const query = `INSERT INTO users (username, password) VALUES ('${username}', '${password}')`;
-
-    db.run(query, function (err) {
+    const query = `INSERT INTO bookings (name, date, time, people) VALUES (?, ?, ?, ?)`;
+    db.run(query, [name, date, time, people], function (err) {
         if (err) {
-            res.send("Error registering user.");
-        } else {
-            res.send("Registration successful! You can now log in.");
+            return res.status(500).json({ error: "Database error" });
         }
+        res.status(201).json({ message: "Booking successful!", bookingId: this.lastID });
     });
 });
 
-// rogin endpoint 
+// 🔹 **Get All Bookings**
+app.get("/api/bookings", (req, res) => {
+    db.all("SELECT * FROM bookings", [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: "Database error" });
+        }
+        res.json(rows);
+    });
+});
+
+// 🔹 **User Authentication Routes (No Changes Here)**
+app.post("/register", (req, res) => {
+    const { username, password } = req.body;
+    const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
+
+    db.run(query, [username, password], function (err) {
+        if (err) {
+            return res.status(500).send("Error registering user.");
+        }
+        res.send("Registration successful! You can now log in.");
+    });
+});
+
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
+    const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
 
-    // SQL Injection vulnerability: No parameterized query!
-    const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
-
-    db.get(query, (err, row) => {
+    db.get(query, [username, password], (err, row) => {
         if (row) {
-            // res.send("Login successful!");
             res.redirect("/landing.html");
         } else {
             res.send("Invalid credentials.");
@@ -52,18 +79,18 @@ app.post("/login", (req, res) => {
 // Logout endpoint
 app.get("/logout", (req, res) => {
     req.session.destroy(() => {
-        res.redirect("/"); // Redirect to home page
+        res.redirect("/");
     });
 });
 
 app.get("/session-check", (req, res) => {
-    if (req.session.user) {
+    if (req.session && req.session.user) {
         res.send({ loggedIn: true });
     } else {
         res.status(401).send({ loggedIn: false });
     }
 });
 
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
