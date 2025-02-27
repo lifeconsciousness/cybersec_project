@@ -155,19 +155,20 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    const { username, password } = req.body;
+  const { username, password } = req.body;
 
-    const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
-    
-    db.get(query, [username, password], (err, row) => {
-        if (row) {
-            req.session.user = { username: row.username }; // Store user info in session
-            // res.json({ message: "Login successful", username: row.username });
-            res.redirect("/landing.html");
-        } else {
-            res.status(401).json({ error: "Invalid credentials" });
-        }
-    });
+  const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
+  db.get(query, [username, password], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (!row) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    req.session.user = { username: row.username };
+    res.json({ success: true, redirect: "/landing.html" });
+  });
 });
 
 

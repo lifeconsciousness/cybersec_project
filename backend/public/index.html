@@ -40,21 +40,21 @@
         <div class="control">
             <h1>Sign In</h1>
         </div>
-        
+
         <div class="control block-cube block-input">
             <input type="text" name="username" placeholder="Username" required>
             <div class="bg-top"><div class="bg-inner"></div></div>
             <div class="bg-right"><div class="bg-inner"></div></div>
             <div class="bg"><div class="bg-inner"></div></div>
         </div>
-        
+
         <div class="control block-cube block-input">
             <input type="password" name="password" placeholder="Password" required>
             <div class="bg-top"><div class="bg-inner"></div></div>
             <div class="bg-right"><div class="bg-inner"></div></div>
             <div class="bg"><div class="bg-inner"></div></div>
         </div>
-        
+
         <button class="btn block-cube block-cube-hover" type="submit">
             <div class="bg-top"><div class="bg-inner"></div></div>
             <div class="bg-right"><div class="bg-inner"></div></div>
@@ -67,21 +67,21 @@
         <div class="control">
             <h1>Register</h1>
         </div>
-        
+
         <div class="control block-cube block-input">
             <input type="text" name="username" placeholder="Username" required>
             <div class="bg-top"><div class="bg-inner"></div></div>
             <div class="bg-right"><div class="bg-inner"></div></div>
             <div class="bg"><div class="bg-inner"></div></div>
         </div>
-        
+
         <div class="control block-cube block-input">
             <input type="password" name="password" placeholder="Password" required>
             <div class="bg-top"><div class="bg-inner"></div></div>
             <div class="bg-right"><div class="bg-inner"></div></div>
             <div class="bg"><div class="bg-inner"></div></div>
         </div>
-        
+
         <button class="btn block-cube block-cube-hover" type="submit">
             <div class="bg-top"><div class="bg-inner"></div></div>
             <div class="bg-right"><div class="bg-inner"></div></div>
@@ -89,5 +89,33 @@
             <div class="text">hell yea</div>
         </button>
     </form>
+    <p id="login-error" style="color: red; display: none;">Invalid username or password.</p>
+
+
+    <script>
+        document.querySelector(".form[action='/login']").addEventListener("submit", async function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+
+            const formData = new FormData(this);
+            const response = await fetch("/login", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                const result = await response.json();
+                document.getElementById("login-error").textContent = result.error;
+                document.getElementById("login-error").style.display = "block";
+
+                setTimeout(() => {
+                    document.getElementById("login-error").style.display = "none";
+                }, 1500);
+
+            } else {
+                window.location.href = "/landing.html";
+            }
+        });
+    </script>
+
 </body>
 </html>
