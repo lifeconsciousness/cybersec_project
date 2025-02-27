@@ -14,6 +14,10 @@ h1 {
   color: rgb(36, 149, 36);
 }
 
+#username {
+  color: white;
+}
+
 button {
   font-family: monospace, serif;
 }

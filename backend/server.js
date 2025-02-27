@@ -129,18 +129,27 @@ app.get("/api/user-bookings", (req, res) => {
 
 
 
-// registration endpoint 
 app.post("/register", (req, res) => {
     const { username, password } = req.body;
 
-    // SQL Injection vulnerability: No parameterized query!
-    const query = `INSERT INTO users (username, password) VALUES ('${username}', '${password}')`;
+    // SQL Injection vulnerability: Use parameterized queries
+    const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
 
-    db.run(query, function (err) {
+    db.run(query, [username, password], function (err) {
         if (err) {
-            res.send("Error registering user.");
+            res.status(500).send("Error registering user.");
         } else {
-            res.send("Registration successful! You can now log in.");
+            // Automatically log in the user after successful registration
+            const loginQuery = `SELECT * FROM users WHERE username = ? AND password = ?`;
+
+            db.get(loginQuery, [username, password], (err, row) => {
+                if (err || !row) {
+                    res.status(500).send("Error logging in after registration.");
+                } else {
+                    req.session.user = { username: row.username }; // Store user info in session
+                    res.redirect("/landing.html"); // Redirect to the landing page after successful login
+                }
+            });
         }
     });
 });
