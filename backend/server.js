@@ -28,9 +28,9 @@ db.run(`
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         date TEXT,
-        time TEXT,
         people INTEGER,
-        table_number INTEGER UNIQUE
+        table_number INTEGER,
+        UNIQUE(date, table_number)
     )
 `);
 
@@ -41,64 +41,63 @@ app.get("/", (req, res) => {
 
 // 🔹 **Get Available Tables**
 app.get("/api/available-tables", (req, res) => {
-    const { date, time } = req.query;
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ error: "Date is required" });
 
-    if (!date || !time) {
-        return res.status(400).json({ error: "Date and time are required" });
-    }
-
-    db.all("SELECT table_number FROM bookings WHERE date = ? AND time = ?", [date, time], (err, rows) => {
+    db.all("SELECT table_number FROM bookings WHERE date = ?", [date], (err, rows) => {
         if (err) return res.status(500).json({ error: "Database error" });
 
         const bookedTables = rows.map(row => row.table_number);
-        const availableTables = [];
-
-        for (let i = 1; i <= 50; i++) {
-            if (!bookedTables.includes(i)) availableTables.push(i);
-        }
+        const availableTables = Array.from({ length: 50 }, (_, i) => i + 1).filter(t => !bookedTables.includes(t));
 
         res.json({ availableTables });
     });
 });
 
+
 // 🔹 **Create a New Booking**
 app.post("/api/book", (req, res) => {
-    const { name, date, time, people, tables } = req.body;
+    const { name, date, people, tables } = req.body;
+    const tableCount = parseInt(tables, 10);
 
-    if (!name || !date || !time || !people || !tables) {
-        return res.status(400).json({ error: "All fields are required" });
+    if (!name || !date || !people || isNaN(tableCount) || tableCount <= 0) {
+        return res.status(400).json({ error: "Invalid input" });
     }
 
-    db.all("SELECT table_number FROM bookings WHERE date = ? AND time = ?", [date, time], (err, rows) => {
-        if (err) return res.status(500).json({ error: "Database error" });
+    db.all("SELECT table_number FROM bookings WHERE date = ?", [date], (err, rows) => {
+        if (err) return res.status(500).json({ error: "Database error 1" });
 
-        const bookedTables = rows.map(row => row.table_number);
-        const tableNumbers = [];
-        
-        for (let i = 1; i <= 50; i++) {
-            if (!bookedTables.includes(i) && tableNumbers.length < tables) {
-                tableNumbers.push(i);
-            }
-        }
+        const bookedTables = new Set(rows.map(row => row.table_number));
+        const availableTables = Array.from({ length: 50 }, (_, i) => i + 1).filter(t => !bookedTables.has(t));
 
-        if (tableNumbers.length < tables) {
+        console.log("Available tables:", availableTables); // ✅ Debugging Step 1
+
+        if (availableTables.length < tableCount) {
             return res.status(400).json({ error: "Not enough tables available" });
         }
 
-        // Insert bookings for each table
-        const insertQuery = `INSERT INTO bookings (name, date, time, people, table_number) VALUES (?, ?, ?, ?, ?)`;
-        const insertPromises = tableNumbers.map(table => 
+        const selectedTables = availableTables.slice(0, tableCount);
+        console.log("Selected tables:", selectedTables); // ✅ Debugging Step 2
+
+        const insertPromises = selectedTables.map(table =>
             new Promise((resolve, reject) => {
-                db.run(insertQuery, [name, date, time, people, table], function (err) {
-                    if (err) reject(err);
-                    resolve(this.lastID);
-                });
+                db.run("INSERT INTO bookings (name, date, people, table_number) VALUES (?, ?, ?, ?)",
+                    [name, date, people, table], function (err) {
+                        if (err) {
+                            console.error(`Failed to insert table ${table}:`, err); // ✅ Debugging Step 3
+                            return reject(err);
+                        }
+                        resolve(this.lastID);
+                    });
             })
         );
 
         Promise.all(insertPromises)
             .then(ids => res.status(201).json({ message: "Booking successful!", bookingIds: ids }))
-            .catch(() => res.status(500).json({ error: "Database error" }));
+            .catch(err => {
+                console.error("Database Error:", err);
+                res.status(500).json({ error: err.message.includes("UNIQUE constraint failed") ? "Table already booked (but shouldn't be!)" : "Database error" });
+            });
     });
 });
 
@@ -136,7 +135,7 @@ app.post("/login", (req, res) => {
     db.get(query, [username, password], (err, row) => {
         if (err || !row) return res.status(401).json({ error: "Invalid credentials" });
          // If using sessions, you can store the user session
-         req.session = { user: row };
+         req.session = {users: row};
 
          // Redirect user
          res.redirect("/landing.html");
