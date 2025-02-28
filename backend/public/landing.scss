@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+$primary-color: rgb(36, 149, 36);
+$secondary-color: #ffffff;
+$background-color: #212121;
+$button-hover: darken($primary-color, 10%);
+$border-radius: 8px;
+
+body {
+//   font-family: 'Poppins', sans-serif;
+  font-family: monospace, serif;
+  background-color: $background-color;
+  color: #333;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: $primary-color;
+}
+
+#username {
+    color: white;
+}
+
+button{
+  font-family: monospace, serif;
+}
+
+.form {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  
+
+  button {
+    background-color: $primary-color;
+    color: $secondary-color;
+    border: none;
+    padding: 10px 15px;
+    border-radius: $border-radius;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+
+    &:hover {
+      background-color: $button-hover;
+    }
+  }
+}
+
+#bookingForm {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: $border-radius;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin: 10px 0 5px;
+    text-align: left;
+  }
+
+  input, select {
+    width: 94%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: $border-radius;
+    font-size: 14px;
+  }
+
+  button {
+    width: 100%;
+    background-color: $primary-color;
+    color: $secondary-color;
+    border: none;
+    padding: 12px;
+    border-radius: $border-radius;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+      background-color: $button-hover;
+    }
+  }
+
+
+  #tables{
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  #bookingForm {
+    width: 90%;
+  }
+}
+
+
+#userBookings {
+    color: white;
+    max-width: 800px;
+    margin: 30px auto;
+    background: #333;
+    padding: 20px;
+    border-radius: $border-radius;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: $primary-color;
+    }
+  }
+  
+  #bookingsTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #444;
+    border-radius: $border-radius;
+    overflow: hidden;
+  
+    th, td {
+      padding: 12px;
+      text-align: center;
+    }
+  
+    th {
+      background: $primary-color;
+      color: white;
+      font-weight: 600;
+    }
+  
+    td {
+      background: #555;
+      color: white;
+      border-bottom: 1px solid #666;
+    }
+  
+    tr:last-child td {
+      border-bottom: none;
+    }
+  
+    tr:hover td {
+      background: darken($primary-color, 15%);
+      transition: 0.3s ease-in-out;
+    }
+  }
+  
+  /* If no bookings found */
+  #bookingsTable tbody tr td {
+    text-align: center;
+    font-style: italic;
+    color: #ccc;
+  }
+  
+  /* Responsive */
+  @media (max-width: 600px) {
+    #userBookings {
+      width: 95%;
+    }
+  
+    #bookingsTable th, 
+    #bookingsTable td {
+      padding: 8px;
+    }
+  }
+  
+
+
+
+
+
+

@@ -1,0 +1,150 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap");
+body {
+  font-family: monospace, serif;
+  background-color: #212121;
+  color: #333;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: rgb(36, 149, 36);
+}
+
+#username {
+  color: white;
+}
+
+button {
+  font-family: monospace, serif;
+}
+
+.form {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+.form button {
+  background-color: rgb(36, 149, 36);
+  color: #ffffff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+.form button:hover {
+  background-color: #1a6c1a;
+}
+
+#bookingForm {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+#bookingForm label {
+  display: block;
+  font-weight: 600;
+  margin: 10px 0 5px;
+  text-align: left;
+}
+#bookingForm input, #bookingForm select {
+  width: 94%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+#bookingForm button {
+  width: 100%;
+  background-color: rgb(36, 149, 36);
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+#bookingForm button:hover {
+  background-color: #1a6c1a;
+}
+#bookingForm #tables {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  #bookingForm {
+    width: 90%;
+  }
+}
+#userBookings {
+  color: white;
+  max-width: 800px;
+  margin: 30px auto;
+  background: #333;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+#userBookings h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: rgb(36, 149, 36);
+}
+
+#bookingsTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: #444;
+  border-radius: 8px;
+  overflow: hidden;
+}
+#bookingsTable th, #bookingsTable td {
+  padding: 12px;
+  text-align: center;
+}
+#bookingsTable th {
+  background: rgb(36, 149, 36);
+  color: white;
+  font-weight: 600;
+}
+#bookingsTable td {
+  background: #555;
+  color: white;
+  border-bottom: 1px solid #666;
+}
+#bookingsTable tr:last-child td {
+  border-bottom: none;
+}
+#bookingsTable tr:hover td {
+  background: #155715;
+  transition: 0.3s ease-in-out;
+}
+
+/* If no bookings found */
+#bookingsTable tbody tr td {
+  text-align: center;
+  font-style: italic;
+  color: #ccc;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #userBookings {
+    width: 95%;
+  }
+  #bookingsTable th,
+  #bookingsTable td {
+    padding: 8px;
+  }
+}/*# sourceMappingURL=landing.css.map */
