@@ -85,7 +85,8 @@ function recordFailedAttempt(ip) {
 
 // Function to log messages to the logs database
 function logToDatabase(message) {
-  logsDb.run("INSERT INTO logs (message) VALUES (?)", [message], (err) => {
+  const timestamp = new Date().toISOString();
+  logsDb.run("INSERT INTO logs (message) VALUES (?)", [`${timestamp} - ${message}`], (err) => {
     if (err) {
       console.error("Error logging to the database:", err);
     }
@@ -108,8 +109,7 @@ app.post("/register", async (req, res) => {
 
   db.get(userExistsQuery, [username], async (err, user) => {
     if (user) {
-      const msg = "Tried to take username " + username;
-      logToDatabase(msg);
+      logToDatabase( "Tried to take username " + username);
       return res.send("This username is already taken");
     }
   });
@@ -121,12 +121,11 @@ app.post("/register", async (req, res) => {
 
   db.run(query, [username, hashedPassword], function (err) {
     if (err) {
-      const msg = "Failed registration, username: " + username;
-      logToDatabase(msg);
+
+      logToDatabase("Failed registration, username: " + username);
       res.status(400).send("Error registering user.");
     } else {
-      const msg = `User registered successfully: ${username}`;
-      logToDatabase(msg);
+      logToDatabase("User registered successfully: " + username);
       res.send("Registration successful!");
     }
   });
@@ -140,11 +139,14 @@ app.post("/login", loginLimiter, (req, res) => {
   const query = `SELECT * FROM users WHERE username = ?`;
 
   db.get(query, [username], async (err, user) => {
-    if (err || !user) {
+    if (!user) {
       recordFailedAttempt(ip);
-      const msg = `Login attempt failed, username=${username}`;
-      logToDatabase(msg);
+      logToDatabase(`Failed login attempt, username=${username}`);
+      return res.status(500).send("Username or password is incorrect.");
+    }else if (err){
+      logToDatabase(`Login attempt failed, username=${username}`);
       return res.status(500).send("Database error.");
+
     }
 
     // Compare hashed password
@@ -154,12 +156,12 @@ app.post("/login", loginLimiter, (req, res) => {
       failedAttempts[ip] = { count: 0, lastAttempt: Date.now() }; // Reset attempts on success
       // req.session.user = user.username; // Store user in sessi/on
       req.session.user = { username: user.username };
-      const msg = `User logged in: ${username}`;
-      logToDatabase(msg);
+
+      logToDatabase(`User logged in: ${username}`);
       res.redirect("/landing.html");
     } else {
-      const msg = `Failed login attempt for username: ${username}`;
-      logToDatabase(msg);
+
+      logToDatabase(`Failed login attempt for username: ${username}`);
       recordFailedAttempt(ip);
       res.send("Invalid credentials.");
     }
