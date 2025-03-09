@@ -13,8 +13,8 @@
     </form>
 
     <h1>
-      Welcome, <span id="username">Guest</span>. You can book a table now :)
-    </h1> 
+      Welcome<span id="username"></span>. You can book a table now :)
+    </h1>
 
     <script>
       // Function to fetch the logged-in user's username
@@ -27,11 +27,11 @@
             return response.json();
           })
           .then((data) => {
-            document.getElementById("username").textContent = data.username;
+            document.getElementById("username").textContent = ", " + data.username;
           })
           .catch((error) => {
             console.error("Error:", error);
-            document.getElementById("username").textContent = "Guest";
+            document.getElementById("username").textContent = "";
           });
       }
 
