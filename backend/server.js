@@ -5,6 +5,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const rateLimit = require("express-rate-limit");
 const session = require("express-session");
+const path = require("path");
 
 const app = express();
 const db = new sqlite3.Database("users.db");
@@ -384,6 +385,20 @@ app.get("/api/user-bookings", (req, res) => {
     console.log(msg);
     res.json(rows);
   });
+});
+
+app.get("/get-username", (req, res) => {
+  if (req.session.user) {
+      res.json({ username: req.session.user.username });
+  } else {
+      res.status(401).json({ error: "Not logged in" });
+  }
+});
+
+
+// Protect landing page
+app.get("/landing.html", requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, "protected", "landing.html"));
 });
 
 app.listen(3000, () => {
