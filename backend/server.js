@@ -5,6 +5,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const rateLimit = require("express-rate-limit");
 const session = require("express-session");
+const path = require("path");
 
 const app = express();
 const db = new sqlite3.Database("users.db");
@@ -282,7 +283,7 @@ app.get("/get-username", (req, res) => {
 
 // Protect landing page
 app.get("/landing.html", requireLogin, (req, res) => {
-  res.sendFile(__dirname + "/public/landing.html");
+  res.sendFile(path.join(__dirname, "protected", "landing.html"));
 });
 
 app.listen(3000, () => {
