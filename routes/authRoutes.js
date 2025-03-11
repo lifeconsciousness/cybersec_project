@@ -73,4 +73,12 @@ router.get("/logout", (req, res) => {
   }
 });
 
+router.get("/get-username", (req, res) => {
+    if (req.session.user) {
+        res.json({ username: req.session.user.username });
+    } else {
+        res.status(401).json({ error: "Not logged in" });
+    }
+  });
+
 module.exports = router;

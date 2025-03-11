@@ -9,7 +9,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use(session({ secret: "your_secret_key", resave: false, saveUninitialized: true }));
+
+app.use(
+  session({
+    secret: "your_secret_key",
+    resave: false,  
+    saveUninitialized: false,
+    cookie: { secure: false, httpOnly: true, sameSite: "lax" },
+  })
+);
+
 
 // Routes
 app.use("/auth", require("./routes/authRoutes"));

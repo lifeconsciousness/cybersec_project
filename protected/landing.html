@@ -8,7 +8,7 @@
     <!-- Link to external stylesheet -->
   </head>
   <body>
-    <form class="form" autocomplete="off" action="/logout" method="get">
+    <form class="form" autocomplete="off" action="/auth/logout" method="get">
       <button id="logout" type="submit">Log out</button>
     </form>
 
@@ -19,7 +19,7 @@
     <script>
       // Function to fetch the logged-in user's username
       function fetchUsername() {
-        fetch("/get-username")
+        fetch("/auth/get-username")
           .then((response) => {
             if (!response.ok) {
               throw new Error("Not logged in");
