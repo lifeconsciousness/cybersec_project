@@ -1,4 +1,8 @@
-# Simple registration/login page
+# Web application with registration/login and booking functionalities
+
+## Vunerable and patched versions
+
+Vunerable (and unstructured version) is available on main branch. Patched and more modular version is on fixed-issues branch.
 
 ## How to use
 
