@@ -2,6 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const path = require("path");
 const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
@@ -12,7 +13,7 @@ app.use(cors());
 
 app.use(
   session({
-    secret: "your_secret_key",
+    secret: process.env.SESSION_SECRET,
     resave: false,  
     saveUninitialized: false,
     cookie: { secure: false, httpOnly: true, sameSite: "lax" },
