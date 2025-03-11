@@ -8,11 +8,6 @@ const path = require("path");
 
 const router = express.Router();
 
-router.get("/landing.html", requireLogin, (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../protected/landing.html"));
-});
-
-
 // Register User
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;

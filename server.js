@@ -3,6 +3,8 @@ const session = require("express-session");
 const path = require("path");
 const cors = require("cors");
 require("dotenv").config();
+const { requireLogin } = require("./middlewares/authMiddleware");
+
 
 const app = express();
 
@@ -19,6 +21,10 @@ app.use(
     cookie: { secure: false, httpOnly: true, sameSite: "lax" },
   })
 );
+
+app.get("/landing.html", requireLogin, (req, res) => {
+  res.sendFile(path.resolve(__dirname, "./protected/landing.html"));
+});
 
 
 // Routes
