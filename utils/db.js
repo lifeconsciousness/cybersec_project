@@ -2,9 +2,9 @@ const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
 // Move databases into the `db` folder
-const db = new sqlite3.Database(path.join(__dirname, "../db/users.db"));
-const logsDb = new sqlite3.Database(path.join(__dirname, "../db/logs.db"));
-const bookingsDb = new sqlite3.Database(path.join(__dirname, "../db/bookings.db"));
+const db = new sqlite3.Database(path.join(__dirname, "../databases/users.db"));
+const logsDb = new sqlite3.Database(path.join(__dirname, "../databases/logs.db"));
+const bookingsDb = new sqlite3.Database(path.join(__dirname, "../databases/bookings.db"));
 
 // Initialize tables
 db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT)");
