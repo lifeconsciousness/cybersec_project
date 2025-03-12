@@ -39,7 +39,7 @@ router.post("/book", (req, res) => {
     return res.status(401).json({ error: "Not logged in" });
   }
 
-  const username = req.session.user.username;
+  const username = req.session.user.username; 
   const ip = req.ip; // Capture the IP address
   const { date, people, tables } = req.body;
   const tableCount = parseInt(tables, 10);
@@ -48,19 +48,19 @@ router.post("/book", (req, res) => {
     return res.status(400).json({ error: "Invalid input" });
   }
 
-  // Check if the IP already has a booking for the given date
+  // Check if the user already has a booking for the given date
   bookingsDb.get(
     "SELECT * FROM bookings WHERE date = ? AND name = ?",
-    [date, ip],
+    [date, username], // Use the username instead of the IP
     (err, existingBooking) => {
       if (err) return res.status(500).json({ error: "Database error" });
 
-    //   if (existingBooking) {
-    //     console.log("iii");
-    //     return res
-    //       .status(403)
-    //       .json({ error: "Only one booking allowed per IP address per day" });
-    //   }
+      // If a booking already exists, prevent further bookings for the same date
+      if (existingBooking) {
+        return res
+          .status(403)
+          .json({ error: "Only one booking allowed per username per day" });
+      }
 
       bookingsDb.all(
         "SELECT table_number FROM bookings WHERE date = ?",
@@ -87,7 +87,7 @@ router.post("/book", (req, res) => {
               new Promise((resolve, reject) => {
                 bookingsDb.run(
                   "INSERT INTO bookings (name, date, people, table_number) VALUES (?, ?, ?, ?)",
-                  [ip, date, people, table],
+                  [username, date, people, table], // Store the username in the booking
                   function (err) {
                     if (err) return reject(err);
                     resolve(this.lastID);
@@ -109,12 +109,14 @@ router.post("/book", (req, res) => {
   );
 });
 
+
 router.get("/user-bookings", (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: "Not logged in" });
   }
 
   const username = req.session.user.username;
+
   bookingsDb.all(
     "SELECT * FROM bookings WHERE name = ?",
     [username],

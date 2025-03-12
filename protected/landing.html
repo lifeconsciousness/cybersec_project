@@ -5,46 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Book Your Table</title>
     <link rel="stylesheet" href="landing.css" />
-    <!-- Link to external stylesheet -->
   </head>
   <body>
     <form class="form" autocomplete="off" action="/auth/logout" method="get">
       <button id="logout" type="submit">Log out</button>
     </form>
 
-    <h1>
-      Welcome<span id="username"></span>. You can book a table now :)
-    </h1>
-
-    <script>
-      // Function to fetch the logged-in user's username
-      function fetchUsername() {
-        fetch("/auth/get-username")
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Not logged in");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            document.getElementById("username").textContent = ", " + data.username;
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            document.getElementById("username").textContent = "";
-          });
-      }
-
-      // Call the function on page load
-      fetchUsername();
-    </script>
+    <h1>Welcome<span id="username"></span>. You can book a table now :)</h1>
 
     <form id="bookingForm">
-      <!-- <label for="name">Name:</label>
-      <input type="text" id="name" required /> -->
-
       <label for="date">Date:</label>
-      <input type="date" id="date" value="2025-02-27" required />
+      <input type="date" id="date" required />
 
       <label for="time">Time:</label>
       <input type="time" id="time" value="19:00" required />
@@ -58,77 +29,6 @@
       <button type="submit">Book</button>
     </form>
 
-    <script>
-      document.getElementById("date").addEventListener("change", fetchTables);
-      document.getElementById("time").addEventListener("change", fetchTables);
-
-      function fetchTables() {
-        const date = document.getElementById("date").value;
-
-        if (!date) {
-          alert("Please select a date first!");
-          return;
-        }
-
-        fetch(`/api/available-tables?date=${date}`)
-          .then((response) => response.json())
-          .then((data) => {
-            const tableSelect = document.getElementById("tables");
-            tableSelect.innerHTML = ""; // Clear dropdown before adding new options
-
-            if (data.availableTables.length === 0) {
-              const option = document.createElement("option");
-              option.value = "";
-              option.textContent = "No tables available";
-              option.disabled = true;
-              tableSelect.appendChild(option);
-              return; // Stop execution if no tables are left
-            }
-
-            // ✅ Generate the correct range of options
-            for (let i = 1; i <= data.availableTables.length; i++) {
-              const option = document.createElement("option");
-              option.value = i;
-              option.textContent = `${i} Tables`;
-              tableSelect.appendChild(option);
-            }
-          })
-          .catch((error) => console.error("Error fetching tables:", error));
-      }
-
-      document
-        .getElementById("bookingForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
-
-          //   const name = document.getElementById("name").value;
-          const date = document.getElementById("date").value;
-          const time = document.getElementById("time").value;
-          const people = document.getElementById("people").value;
-          const tables = document.getElementById("tables").value;
-
-          console.log(date, time, people, tables)
-
-          fetch("/api/book", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ date, time, people, tables }),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-                fetchTables();
-                fetchUserBookings();
-                alert(data.message || data.error);
-            });
-        });
-
-      document.addEventListener("DOMContentLoaded", function () {
-        const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
-        document.getElementById("date").value = today;
-        fetchTables(); // Automatically load tables for today's date
-      });
-    </script>
-
     <div id="userBookings">
       <h2>Your Bookings</h2>
       <table id="bookingsTable">
@@ -139,45 +39,11 @@
             <th>Table Number</th>
           </tr>
         </thead>
-        <tbody>
-          <!-- Booked tables will be inserted here -->
-        </tbody>
+        <tbody></tbody>
       </table>
-
-      <script>
-        function fetchUserBookings() {
-          fetch("/api/user-bookings")
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Not logged in");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              const tableBody = document.querySelector("#bookingsTable tbody");
-              tableBody.innerHTML = ""; // Clear previous entries
-
-              if (data.length === 0) {
-                tableBody.innerHTML =
-                  "<tr><td colspan='3'>No bookings found</td></tr>";
-                return;
-              }
-
-              data.forEach((booking) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                        <td>${booking.date}</td>
-                        <td>${booking.people}</td>
-                        <td>${booking.table_number}</td>
-                    `;
-                tableBody.appendChild(row);
-              });
-            })
-            .catch((error) => console.error("Error fetching bookings:", error));
-        }
-
-        document.addEventListener("DOMContentLoaded", fetchUserBookings);
-      </script>
     </div>
+
+    <!-- Link the external JavaScript file -->
+    <script src="../bookings.js"></script>
   </body>
 </html>
