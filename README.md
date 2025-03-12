@@ -2,7 +2,7 @@
 
 ## Vunerable and patched versions
 
-Vunerable (and unstructured version) is available on main branch. Patched and more modular version is on fixed-issues branch.
+Vunerable (and unstructured version) is available on `main` branch. Patched and more modular version is on `fixed-issues` branch.
 
 ## How to use
 
@@ -12,11 +12,7 @@ In order to register, fill in username and password fields. You can use these cr
 
 Run html version:
 
-`cd backend && node server.js`
-
-The react version is still in development so it won't work yet:
-
-`cd backend && node server.js` and `cd frontend && npm start`
+`npm i && node server.js`
 
 ## Vunerabilities
 
